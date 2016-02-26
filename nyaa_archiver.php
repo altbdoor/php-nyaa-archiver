@@ -77,6 +77,7 @@ for ($i=$startId; $i<=$endId; $i++) {
 			$json['name'] = $temp->textContent;
 		}
 		else {
+			$continue = false;
 			throw new Exception('Failed ID '.$i.'. Blame: Incomplete HTML, name.');
 		}
 		
@@ -86,6 +87,7 @@ for ($i=$startId; $i<=$endId; $i++) {
 			$json['timestamp'] = getTimestampFromStr($temp->textContent);
 		}
 		else {
+			$continue = false;
 			throw new Exception('Failed ID '.$i.'. Blame: Incomplete HTML, timestamp.');
 		}
 		
@@ -105,6 +107,7 @@ for ($i=$startId; $i<=$endId; $i++) {
 			$json['filesize'] = $temp->textContent;
 		}
 		else {
+			$continue = false;
 			throw new Exception('Failed ID '.$i.'. Blame: Incomplete HTML, filesize.');
 		}
 		
@@ -124,7 +127,7 @@ for ($i=$startId; $i<=$endId; $i++) {
 		}
 		
 		file_put_contents($currentPath, json_encode($json).",\n", FILE_APPEND);
-		printLog('Success '.$i.'.');
+		printLog('Success ID '.$i.'.');
 	}
 	catch (Exception $ex) {
 		$message = $ex->getMessage();
