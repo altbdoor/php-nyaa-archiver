@@ -4,11 +4,31 @@ Written on a whim after the banic on February 2016. This script archives [nyaa.s
 
 ### Usage
 ```
-php nyaa_archiver.php -s=10 -e=20 -f=archive.json
+Usage: php nyaa_archiver.php [OPTION...]
 
-  -s  (start) Sets the starting ID to archive (Default: 15)
-  -e  (end) Sets the ending ID to archive (Default: 20)
-  -f  (file) Sets the JSON output file (Default: archive)
+  -s  (start) (Default: 15)
+      Sets the starting ID to archive
+
+  -e  (end)   (Default: 20)
+      Sets the ending ID to archive
+
+  -f  (file)  (Default: "output.json")
+      Sets the JSON output file
+
+  --sukebei
+      Sets the URL to archive sukebei instead of nyaa
+
+  --failsleep (Default: 10)
+      Sets the time to sleep before retrying when a failure occurs
+
+  --fields    (Default: "id,name,category,timestamp,description,filesize,magnet")
+      Sets the fields to archive
+
+Example:
+  Archiving sukebei ID 1,940,000 to 1,950,000 into "sukebei.json", with only the
+  ID, name and magnet fields.
+  
+  php nyaa_archiver.php -s=1940000 -e=1950000 -f=sukebei.json --fields=id,name,magnet
 ```
 
 ### JSON Output
@@ -25,6 +45,14 @@ php nyaa_archiver.php -s=10 -e=20 -f=archive.json
 },
 // original
 {"id":74,"name":"Raw Manga xxxHOLiC Vol.1 - 10","category":["Literature","Raw Literature"],"timestamp":1214209440,"description":"someone please SEED!!!","filesize":"344.5 MiB","magnet":"534b478eddf5cb87714702c17735f9ba8e65efae"},
+
+/*
+    the "description" field might be notoriously big in sukebei, as they are
+    usually filled with Japanese characters which are escaped.
+    
+    the "magnet" field might contain "#{number}" sometimes, which indicates that
+    the uploader has updated the torrent file in ID {number}.
+*/
 ```
 
 ### Log Output
@@ -58,10 +86,24 @@ php nyaa_archiver.php -s=10 -e=20 -f=archive.json
    Personally, I find JSON a lot easier to manipulate. As for the odd structure, it was to make it easier to join them in bulk. Something like `cat *.json > combined.json` would seamlessly combine all the JSON output. If you are looking to manipulate them, it might take a few extra steps.
    
    ```php
-   $content = file_get_contents('archive.json'); // load file
+   // if its a small file
+   $content = file_get_contents('output.json'); // load file
    $content = rtrim($content, ','); // remove last comma
    $content = '[' . $content . ']'; // wrap in an array
    $content = json_decode($content); // decode
+   
+   // if its a huge file
+   $handle = fopen('output.json', 'r'); // open file
+   if ($handle) {
+        while (!feof($handle)) {
+            $buffer = fgets($handle, 8192);
+            $buffer = rtrim($buffer, ",\n"); // remove last comma and newline
+            $buffer = json_decode($buffer); // decode
+            
+            // process each line
+        }
+        fclose($handle);
+   }
    ```
    
 4. **Why not insert it into a database directly?**
@@ -70,12 +112,12 @@ php nyaa_archiver.php -s=10 -e=20 -f=archive.json
    
 5. **How do I background this process on a server?**
 
-   `nohup php nyaa_archiver.php -s=10 -e=20 -f=archive.json > log.txt &`. Output will be redirected to `log.txt`, and you can view it (live!) with `tail -f log.txt`.
+   `nohup php nyaa_archiver.php -s=10 -e=20 -f=output.json > log.txt &`. Output will be redirected to `log.txt`, and you can view it (live!) with `tail -f log.txt`.
    
 6. **How do I archive sukebei instead?**
 
-   Find and change the `$baseUrl`. Might consider adding it as another opt in future.
+   <strike>Find and change the `$baseUrl`. Might consider adding it as another opt in future.</strike> We have `--sukebei` now.
 
 7. **How do I search through the JSON files?**
 
-   You `grep -i -P '"name":"(.+?)dragon ball(.+?)"' archive.json` it. Regex is fun!
+   You `grep -i -P '"name":"(.+?)dragon ball(.+?)"' output.json` it. Regex is fun!

@@ -4,6 +4,46 @@
 date_default_timezone_set('Asia/Kuala_Lumpur');
 
 
+// get options
+function getOptions () {
+	$options = getopt('s:e:f:', array(
+		'sukebei', 'failsleep:', 'fields:'
+	));
+	
+	$return = array(
+		'start' => 15,
+		'end' => 20,
+		'fileName' => 'output.json',
+		'baseUrl' => 'http://www.nyaa.se/?tid=',
+		'failSleep' => 10,
+		'fields' => array(
+			'id', 'name', 'category', 'timestamp', 'description', 'filesize', 'magnet'
+		)
+	);
+	
+	if (isset($options['s']) && preg_match('/^\d+$/', $options['s'])) {
+		$return['start'] = (int)$options['s'];
+	}
+	if (isset($options['e']) && preg_match('/^\d+$/', $options['e'])) {
+		$return['end'] = (int)$options['e'];
+	}
+	if (isset($options['f'])) {
+		$return['fileName'] = $options['f'];
+	}
+	if (isset($options['sukebei'])) {
+		$return['baseUrl'] = 'http://sukebei.nyaa.se/?tid=';
+	}
+	if (isset($options['failsleep']) && preg_match('/^\d+$/', $options['failsleep'])) {
+		$return['failSleep'] = (int)$options['failsleep'];
+	}
+	if (isset($options['fields']) && is_string($options['fields'])) {
+		$return['fields'] = explode(',', $options['fields']);
+	}
+	
+	return $return;
+}
+
+
 // get domdocument inner html
 function getDOMInnerHTML ($domNode) {
 	$innerHTML = '';
