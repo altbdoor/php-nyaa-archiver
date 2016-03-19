@@ -28,7 +28,7 @@ Example:
   Archiving sukebei ID 1,940,000 to 1,950,000 into "sukebei.json", with only the
   ID, name and magnet fields.
   
-  php nyaa_archiver.php -s=1940000 -e=1950000 -f=sukebei.json --fields=id,name,magnet
+  php nyaa_archiver.php -s=1940000 -e=1950000 -f=sukebei.json --sukebei --fields=id,name,magnet
 ```
 
 ### JSON Output
