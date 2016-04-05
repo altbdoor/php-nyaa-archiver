@@ -77,6 +77,7 @@ for ($i=$options['start']; $i<=$options['end']; $i++) {
 		if (in_array('timestamp', $options['fields'])) {
 			$json['timestamp'] = 0;
 			
+			$temp = $xpath->query('.//td[@class="viewtorrentname"]')->item(0);
 			$temp = $temp->parentNode->lastChild;
 			if (preg_match('/^\d{4}-\d{2}-\d{2}, \d{2}:\d{2} UTC$/', $temp->textContent)) {
 				$json['timestamp'] = getTimestampFromStr($temp->textContent);
